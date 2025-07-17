@@ -8,6 +8,7 @@ defmodule RaffleyWeb.Router do
     plug :put_root_layout, html: {RaffleyWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :spy
   end
 
   pipeline :api do
@@ -18,12 +19,24 @@ defmodule RaffleyWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    get "/rules", RuleController, :index
+    get "/rules/:id", RuleController, :show
+
+    live "/estimator", EstimatorLive
+
+    live "/raffles", RaffleLive.Index
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", RaffleyWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", RaffleyWeb do
+    pipe_through :api
+  end
+
+  def spy(conn, _opts) do
+    greeting = ~w(Hi Howdy Hello) |> Enum.random()
+    assign(conn, :greeting, greeting)
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:raffley, :dev_routes) do

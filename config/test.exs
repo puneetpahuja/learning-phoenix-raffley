@@ -17,7 +17,7 @@ config :raffley, Raffley.Repo,
 # you can enable the server option below.
 config :raffley, RaffleyWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "N1zjNtOC0+dse/y5rGwlikk1ZysuCaUX1y+iM56vnySwMSsLAc5Urn6lLAFM89Wq",
+  secret_key_base: "IyNehUH0zghyMnbfM+daJh8Mbz0iBTtAQHR04YSKunssDQoAnMiJ3HmftP58gwBj",
   server: false
 
 # In test we don't send emails

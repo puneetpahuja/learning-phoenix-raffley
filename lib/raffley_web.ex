@@ -89,6 +89,9 @@ defmodule RaffleyWeb do
       import Phoenix.HTML
       # Core UI components
       import RaffleyWeb.CoreComponents
+      # Custom UI components
+      # needed so that custom components are available in all live views without importing
+      import RaffleyWeb.CustomComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

@@ -23,7 +23,7 @@ config :raffley, RaffleyWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "p+JiAw1c8MYCm/p/ssajej1GX9ZfrZa1MaPpBN7DXjsYmYKW+j1e8VXwwL0ifpe8",
+  secret_key_base: "NhpinPsMzU7+sOmKoZd7hGCRNedhQ0zXWFmmtnMMXRC/tf5y/FaCUQqspethwfZQ",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:raffley, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:raffley, ~w(--watch)]}
@@ -58,7 +58,8 @@ config :raffley, RaffleyWeb.Endpoint,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/raffley_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/raffley_web/(controllers|live|components)/.*(ex|heex)$",
+      ~r"lib/raffley/*"
     ]
   ]
 

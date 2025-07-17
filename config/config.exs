@@ -20,7 +20,7 @@ config :raffley, RaffleyWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Raffley.PubSub,
-  live_view: [signing_salt: "GJ91PfvT"]
+  live_view: [signing_salt: "aWp7MrNE"]
 
 # Configures the mailer
 #

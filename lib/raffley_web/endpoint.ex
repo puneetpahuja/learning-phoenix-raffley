@@ -7,7 +7,7 @@ defmodule RaffleyWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_raffley_key",
-    signing_salt: "1rD/WWZh",
+    signing_salt: "XuETSgZB",
     same_site: "Lax"
   ]
 
