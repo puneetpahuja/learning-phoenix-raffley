@@ -29,4 +29,27 @@ defmodule RaffleyWeb.CustomComponents do
     </div>
     """
   end
+
+  # slot: pass heex content to a function component
+  # :inner_block is the default slot and cannot be named anything else. anything that is not inside a named slot in the caller goes in inner_block. it concatenates all the heex content fragments not inside a named slot.
+  slot :inner_block, required: true
+
+  # rest all are named slots and can be named anything. the caller has to add the heex content in the same named tags.
+  slot :details
+
+  def banner(assigns) do
+    assigns = assign(assigns, :emoji, ~w(😎 🤩 🥳) |> Enum.random())
+
+    ~H"""
+    <div class="banner">
+      <h1>
+        {render_slot(@inner_block)}
+      </h1>
+      <%!-- can use `:if={details != []}` here for conditional rendering --%>
+      <div :for={details <- @details} class="details">
+        {render_slot(details, @emoji)}
+      </div>
+    </div>
+    """
+  end
 end
