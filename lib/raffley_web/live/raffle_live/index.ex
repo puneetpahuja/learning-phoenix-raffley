@@ -34,16 +34,20 @@ defmodule RaffleyWeb.RaffleLive.Index do
 
   def raffle_card(assigns) do
     ~H"""
-    <div class="card">
-      <img src={@raffle.image_path} />
-      <h2>{@raffle.prize}</h2>
-      <div class="details">
-        <div class="price">
-          ${@raffle.ticket_price} / ticket
+    <%!-- `navigate` is more performant than `href`. one less set of mount() and render(). uses existing websocket. works only between liveviews. --%>
+    <%!-- <.link href={~p"/raffles/#{@raffle.id}"}> --%>
+    <.link navigate={~p"/raffles/#{@raffle.id}"}>
+      <div class="card">
+        <img src={@raffle.image_path} />
+        <h2>{@raffle.prize}</h2>
+        <div class="details">
+          <div class="price">
+            ${@raffle.ticket_price} / ticket
+          </div>
+          <.badge status={@raffle.status} />
         </div>
-        <.badge status={@raffle.status} />
       </div>
-    </div>
+    </.link>
     """
   end
 end

@@ -10,7 +10,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
   # a phoenix callback that is invoked after mount and before render
   # params can be used in either mount() or handle_params(). it is a personal preference
   # but uri is only accessible in handle_params()
-  def handle_params(%{"id" => id}, uri, socket) do
+  def handle_params(%{"id" => id}, _uri, socket) do
     raffle = Raffles.get_raffle(id)
 
     socket =
@@ -54,8 +54,10 @@ defmodule RaffleyWeb.RaffleLive.Show do
       <h4>Featured Raffles</h4>
       <ul class="raffles">
         <li :for={raffle <- @raffles}>
-          <img src={raffle.image_path} />
-          {raffle.prize}
+          <.link navigate={~p"/raffles/#{raffle.id}"}>
+            <img src={raffle.image_path} />
+            {raffle.prize}
+          </.link>
         </li>
       </ul>
     </section>
