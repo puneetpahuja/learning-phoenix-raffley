@@ -43,6 +43,10 @@ defmodule RaffleyWeb.RaffleLive.Index do
         1. a unique id (dom requirement).
         2. `phx-update="stream"`--%>
       <div class="raffles" id="raffles" phx-update="stream">
+        <%!-- in case of no results. `hidden` keeps it hidden by default. `only:block` makes it visible if it's the only child of the parent container. --%>
+        <div id="empty" class="no-results only:block hidden">
+          No raffles found. Try changing your filters.
+        </div>
         <.raffle_card :for={{dom_id, raffle} <- @streams.raffles} raffle={raffle} id={dom_id} />
       </div>
     </div>
@@ -57,7 +61,8 @@ defmodule RaffleyWeb.RaffleLive.Index do
     <.form for={@form} id="filter-form" phx-change="filter" phx-submit="filter">
       <%!-- can use form["q"] also --%>
       <%!-- turns off browser autocomplete - previous things searched for in the browser on other sites --%>
-      <.input field={@form[:q]} placeholder="Search..." autocomplete="off" />
+      <%!-- phx-debounce prevents db queries by firing a server request only after 500 milliseconds and not on every change --%>
+      <.input field={@form[:q]} placeholder="Search..." autocomplete="off" phx-debounce="500" />
 
       <%!-- options can be strings also --%>
       <.input type="select" field={@form[:status]} prompt="Status" options={Raffles.status_values()} />
@@ -66,7 +71,11 @@ defmodule RaffleyWeb.RaffleLive.Index do
         type="select"
         field={@form[:sort_by]}
         prompt="Sort By"
-        options={[:prize, :ticket_price]}
+        options={[
+          Prize: "prize",
+          "Price: High to Low": "ticket_price_desc",
+          "Price: Low to High": "ticket_price_asc"
+        ]}
       />
     </.form>
     """

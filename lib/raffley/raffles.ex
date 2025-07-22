@@ -15,10 +15,40 @@ defmodule Raffley.Raffles do
 
   def filter_raffles(filter) do
     Raffle
-    |> where(status: ^filter["status"])
-    |> where([r], ilike(r.prize, ^"%#{filter["q"]}%"))
-    |> order_by(:prize)
+    |> with_status(filter["status"])
+    |> search_by(filter["q"])
+    |> sort(filter["sort_by"])
     |> Repo.all()
+  end
+
+  defp sort(query, "prize") do
+    order_by(query, :prize)
+  end
+
+  defp sort(query, "ticket_price_desc") do
+    order_by(query, desc: :ticket_price)
+  end
+
+  defp sort(query, "ticket_price_asc") do
+    order_by(query, :ticket_price)
+  end
+
+  defp sort(query, _) do
+    order_by(query, :id)
+  end
+
+  defp search_by(query, q) when q in ["", nil], do: query
+
+  defp search_by(query, q) do
+    where(query, [r], ilike(r.prize, ^"%#{q}%"))
+  end
+
+  defp with_status(query, status) do
+    if String.to_atom(status) in status_values() do
+      where(query, status: ^status)
+    else
+      query
+    end
   end
 
   # ! at the end of the function name indicates that it can raise an error
