@@ -11,7 +11,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
   # params can be used in either mount() or handle_params(). it is a personal preference
   # but uri is only accessible in handle_params()
   def handle_params(%{"id" => id}, _uri, socket) do
-    raffle = Raffles.get_raffle(id)
+    raffle = Raffles.get_raffle!(id)
 
     socket =
       socket
