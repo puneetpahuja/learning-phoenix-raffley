@@ -30,7 +30,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
 
   # to get compile time errors if the correct attributes are not sent 
   # while calling the function component raffle_card() 
-  attr :raffle, Raffley.Raffle, required: true
+  attr :raffle, Raffley.Raffles.Raffle, required: true
 
   def raffle_card(assigns) do
     ~H"""
