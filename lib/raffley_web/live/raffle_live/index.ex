@@ -7,7 +7,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
     socket =
       socket
       |> assign(:page_title, "Raffles")
-      |> stream(:raffles, Raffles.list_raffles())
+      |> stream(:raffles, Raffles.filter_raffles())
 
     # attach_hook() is used for callback hooks at different stages of the liveview
     # socket =
