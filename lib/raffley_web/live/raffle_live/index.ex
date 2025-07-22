@@ -4,10 +4,15 @@ defmodule RaffleyWeb.RaffleLive.Index do
   alias Raffley.Raffles
 
   def mount(_params, _session, socket) do
+    # to_form() expects the map to have string keys
+    # don't need to pass values that will be initially empty
+    # form = to_form(%{"q" => "", "status" => "", "sort_by" => ""})
+    form = to_form(%{})
+
     socket =
       socket
-      |> assign(:page_title, "Raffles")
-      |> stream(:raffles, Raffles.filter_raffles())
+      |> assign(page_title: "Raffles", form: form)
+      |> stream(:raffles, Raffles.list_raffles())
 
     # attach_hook() is used for callback hooks at different stages of the liveview
     # socket =
@@ -31,6 +36,9 @@ defmodule RaffleyWeb.RaffleLive.Index do
           Any guesses?
         </:details>
       </.banner>
+
+      <.filter_form form={@form} />
+
       <%!-- whenever you use a stream, the parent container also needs 
         1. a unique id (dom requirement).
         2. `phx-update="stream"`--%>
@@ -38,6 +46,28 @@ defmodule RaffleyWeb.RaffleLive.Index do
         <.raffle_card :for={{dom_id, raffle} <- @streams.raffles} raffle={raffle} id={dom_id} />
       </div>
     </div>
+    """
+  end
+
+  attr :form, :map, required: true
+
+  def filter_form(assigns) do
+    ~H"""
+    <.form for={@form}>
+      <%!-- can use form["q"] also --%>
+      <%!-- turns off browser autocomplete - previous things searched for in the browser on other sites --%>
+      <.input field={@form[:q]} placeholder="Search..." autocomplete="off" />
+
+      <%!-- options can be strings also --%>
+      <.input type="select" field={@form[:status]} prompt="Status" options={Raffles.status_values()} />
+
+      <.input
+        type="select"
+        field={@form[:sort_by]}
+        prompt="Sort By"
+        options={[:prize, :ticket_price]}
+      />
+    </.form>
     """
   end
 

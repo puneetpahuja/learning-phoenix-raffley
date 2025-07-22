@@ -36,6 +36,10 @@ defmodule Raffley.Raffles do
     |> Repo.all()
   end
 
+  def status_values() do
+    Ecto.Enum.values(Raffle, :status)
+  end
+
   # Repo functions
   # Repo.all(Raffle) -> get all raffles
   # Repo.get(Raffle, 5) -> get raffle by id or primary key. returns nil if the id does not exist
