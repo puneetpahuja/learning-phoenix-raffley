@@ -53,7 +53,8 @@ defmodule RaffleyWeb.RaffleLive.Index do
 
   def filter_form(assigns) do
     ~H"""
-    <.form for={@form}>
+    <%!-- phx-change sends event on every form change, phx-submit sends in only on submit  --%>
+    <.form for={@form} id="filter-form" phx-change="filter" phx-submit="filter">
       <%!-- can use form["q"] also --%>
       <%!-- turns off browser autocomplete - previous things searched for in the browser on other sites --%>
       <.input field={@form[:q]} placeholder="Search..." autocomplete="off" />
@@ -94,5 +95,14 @@ defmodule RaffleyWeb.RaffleLive.Index do
       </div>
     </.link>
     """
+  end
+
+  def handle_event("filter", params, socket) do
+    socket =
+      socket
+      |> assign(:form, to_form(params))
+      |> stream(:raffles, Raffles.filter_raffles(params), reset: true)
+
+    {:noreply, socket}
   end
 end
