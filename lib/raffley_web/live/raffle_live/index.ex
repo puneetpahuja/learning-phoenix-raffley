@@ -4,7 +4,17 @@ defmodule RaffleyWeb.RaffleLive.Index do
   alias Raffley.Raffles
 
   def mount(_params, _session, socket) do
-    socket = assign(socket, :raffles, Raffles.list_raffles())
+    socket =
+      socket
+      |> assign(:page_title, "Raffles")
+      |> stream(:raffles, Raffles.list_raffles())
+
+    # attach_hook() is used for callback hooks at different stages of the liveview
+    # socket =
+    #   attach_hook(socket, :log_stream, :after_render, fn socket ->
+    #     IO.inspect(socket.assigns.streams.raffles, label: "AFTER RENDER")
+    #     socket
+    #   end)
 
     {:ok, socket}
   end
@@ -21,8 +31,11 @@ defmodule RaffleyWeb.RaffleLive.Index do
           Any guesses?
         </:details>
       </.banner>
-      <div class="raffles">
-        <.raffle_card :for={raffle <- @raffles} raffle={raffle} />
+      <%!-- whenever you use a stream, the parent container also needs 
+        1. a unique id (dom requirement).
+        2. `phx-update="stream"`--%>
+      <div class="raffles" id="raffles" phx-update="stream">
+        <.raffle_card :for={{dom_id, raffle} <- @streams.raffles} raffle={raffle} id={dom_id} />
       </div>
     </div>
     """
@@ -31,12 +44,14 @@ defmodule RaffleyWeb.RaffleLive.Index do
   # to get compile time errors if the correct attributes are not sent 
   # while calling the function component raffle_card() 
   attr :raffle, Raffley.Raffles.Raffle, required: true
+  attr :id, :string, required: true
 
   def raffle_card(assigns) do
     ~H"""
     <%!-- `navigate` is more performant than `href`. one less set of mount() and render(). uses existing websocket. works only between liveviews. --%>
     <%!-- <.link href={~p"/raffles/#{@raffle.id}"}> --%>
-    <.link navigate={~p"/raffles/#{@raffle.id}"}>
+    <%!-- a unique id is required by dom --%>
+    <.link navigate={~p"/raffles/#{@raffle.id}"} id={@id}>
       <div class="card">
         <img src={@raffle.image_path} />
         <h2>{@raffle.prize}</h2>
