@@ -10,13 +10,8 @@ defmodule Raffley.Admin do
   end
 
   def create_raffle(attrs \\ %{}) do
-    %Raffle{
-      prize: attrs["prize"],
-      description: attrs["description"],
-      ticket_price: attrs["ticket_price"] |> String.to_integer(),
-      status: attrs["status"] |> String.to_existing_atom(),
-      image_path: attrs["image_path"]
-    }
-    |> Repo.insert!()
+    %Raffle{}
+    |> Raffle.changeset(attrs)
+    |> Repo.insert()
   end
 end

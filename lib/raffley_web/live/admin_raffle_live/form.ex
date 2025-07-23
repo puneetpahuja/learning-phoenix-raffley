@@ -1,12 +1,18 @@
 defmodule RaffleyWeb.AdminRaffleLive.Form do
   use RaffleyWeb, :live_view
   alias Raffley.Raffles
+  alias Raffley.Raffles.Raffle
   alias Raffley.Admin
 
   def mount(_params, _session, socket) do
+    changeset = Raffle.changeset(%Raffle{}, %{})
+
     socket =
       socket
-      |> assign(page_title: "New Raffle", form: to_form(%{}, as: "raffle"))
+      # to_form() can't take a schema struct but can take a changeset
+      # the `as:` is not required because it will use the lowercase schema name
+      # sending the changeset will prefill the form with the schema default values
+      |> assign(page_title: "New Raffle", form: to_form(changeset))
 
     {:ok, socket}
   end
@@ -46,9 +52,21 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
   end
 
   def handle_event("save", %{"raffle" => raffle_params}, socket) do
-    _raffle = Admin.create_raffle(raffle_params)
+    case Admin.create_raffle(raffle_params) do
+      {:ok, _raffle} ->
+        socket =
+          socket
+          # assigns a flash message to socket
+          # by default handles :info, :error
+          |> put_flash(:info, "Raffle created successfully!")
+          |> push_navigate(to: ~p"/admin/raffles")
 
-    socket = push_navigate(socket, to: ~p"/admin/raffles")
-    {:noreply, socket}
+        {:noreply, socket}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        # will re-render the form with errors in the changeset
+        socket = assign(socket, :form, to_form(changeset))
+        {:noreply, socket}
+    end
   end
 end
