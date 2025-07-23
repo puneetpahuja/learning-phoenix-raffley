@@ -17,7 +17,11 @@ defmodule RaffleyWeb.RaffleLive.Show do
       socket
       |> assign(:raffle, raffle)
       |> assign(:page_title, raffle.prize)
-      |> assign(:featured_raffles, Raffles.featured_raffles(raffle))
+      # shape of async result: %Phoenix.LiveView.AsyncResult{ok?: false, loading: [:featured_raffles], failed: nil, result: nil}
+      |> assign_async(:featured_raffles, fn ->
+        {:ok, %{featured_raffles: Raffles.featured_raffles(raffle)}}
+        # {:error, "abc"}
+      end)
 
     {:noreply, socket}
   end
@@ -41,25 +45,42 @@ defmodule RaffleyWeb.RaffleLive.Show do
       <div class="activity">
         <div class="left"></div>
         <div class="right">
-          <.featured_raffles raffles={@featured_raffles} />
+          <.featured_raffles raffles_async={@featured_raffles} />
         </div>
       </div>
     </div>
     """
   end
 
+  attr :raffles_async, Phoenix.LiveView.AsyncResult, required: true
+
   def featured_raffles(assigns) do
     ~H"""
     <section>
       <h4>Featured Raffles</h4>
-      <ul class="raffles">
-        <li :for={raffle <- @raffles}>
-          <.link navigate={~p"/raffles/#{raffle.id}"}>
-            <img src={raffle.image_path} />
-            {raffle.prize}
-          </.link>
-        </li>
-      </ul>
+      <%!-- shape of async result: %Phoenix.LiveView.AsyncResult{ok?: false, loading: [:featured_raffles], failed: nil, result: nil} --%>
+      <%!-- result is only accessible in the inner_block and not other named blocks --%>
+      <.async_result :let={result} assign={@raffles_async}>
+        <:loading>
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </:loading>
+        <:failed :let={{:error, reason}}>
+          <div class="failed">
+            Yikes: {reason}
+          </div>
+        </:failed>
+        <%!-- inner_block is loaded only if @raffles_async.ok? is true --%>
+        <ul class="raffles">
+          <li :for={raffle <- result}>
+            <.link navigate={~p"/raffles/#{raffle.id}"}>
+              <img src={raffle.image_path} />
+              {raffle.prize}
+            </.link>
+          </li>
+        </ul>
+      </.async_result>
     </section>
     """
   end
