@@ -5,7 +5,7 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
   alias Raffley.Admin
 
   def mount(_params, _session, socket) do
-    changeset = Raffle.changeset(%Raffle{}, %{})
+    changeset = Admin.change_raffle(%Raffle{})
 
     socket =
       socket
@@ -22,14 +22,23 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
     <.header>
       {@page_title}
     </.header>
-    <.simple_form for={@form} id="raffle-form" phx-submit="save">
-      <.input field={@form[:prize]} label="Prize" />
+    <.simple_form for={@form} id="raffle-form" phx-submit="save" phx-change="validate">
+      <%!-- required saves a server call and gives error on the client-side if the form is submitted with this field as blank --%>
+      <.input field={@form[:prize]} label="Prize" required />
 
-      <.input field={@form[:description]} type="textarea" label="Description" />
+      <%!-- phx-debounce="blur" makes the validations run once we move out of this input field and not on every change i.e. every char typed --%>
+      <.input
+        field={@form[:description]}
+        type="textarea"
+        required
+        label="Description"
+        phx-debounce="blur"
+      />
 
-      <.input field={@form[:ticket_price]} type="number" label="Ticket Price" />
+      <.input field={@form[:ticket_price]} type="number" required label="Ticket Price" />
 
       <.input
+        required
         field={@form[:status]}
         type="select"
         label="Status"
@@ -37,7 +46,7 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
         options={Raffles.status_values()}
       />
 
-      <.input field={@form[:image_path]} label="Image Path" />
+      <.input field={@form[:image_path]} label="Image Path" required />
 
       <:actions>
         <%!-- phx-disable-with comes into action when you press this button --%>
@@ -68,5 +77,13 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
         socket = assign(socket, :form, to_form(changeset))
         {:noreply, socket}
     end
+  end
+
+  def handle_event("validate", %{"raffle" => raffle_params}, socket) do
+    changeset = Admin.change_raffle(%Raffle{}, raffle_params)
+    # it will re-render the form and show the errors in the changeset
+    # action is sent to make the form's action non-nil, so that it displays the errors
+    socket = assign(socket, :form, to_form(changeset, action: :validate))
+    {:noreply, socket}
   end
 end

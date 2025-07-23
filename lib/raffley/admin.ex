@@ -14,4 +14,9 @@ defmodule Raffley.Admin do
     |> Raffle.changeset(attrs)
     |> Repo.insert()
   end
+
+  # name can be confusing as it creates a changeset and is not a raffle changing function. but this is a convention.
+  def change_raffle(%Raffle{} = raffle, attrs \\ %{}) do
+    Raffle.changeset(raffle, attrs)
+  end
 end
