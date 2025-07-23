@@ -3,16 +3,10 @@ defmodule RaffleyWeb.RaffleLive.Index do
 
   alias Raffley.Raffles
 
-  def mount(params, _session, socket) do
+  def mount(_params, _session, socket) do
     # to_form() expects the map to have string keys
     # don't need to pass values that will be initially empty
     # form = to_form(%{"q" => "", "status" => "", "sort_by" => ""})
-    form = to_form(params)
-
-    socket =
-      socket
-      |> assign(page_title: "Raffles", form: form)
-      |> stream(:raffles, Raffles.filter_raffles(params))
 
     # attach_hook() is used for callback hooks at different stages of the liveview
     # socket =
@@ -22,6 +16,19 @@ defmodule RaffleyWeb.RaffleLive.Index do
     #   end)
 
     {:ok, socket}
+  end
+
+  # handle_params() is called in two scenarios
+  # 1. always after mount()
+  # 2. whenever there's is a live navigation using patch - mount() is not called in this scenario. so all the data handling needs to be done in handle_params().
+  def handle_params(params, _uri, socket) do
+    socket =
+      socket
+      |> assign(page_title: "Raffles", form: to_form(params))
+      # reset is done to call filter_raffles() again
+      |> stream(:raffles, Raffles.filter_raffles(params), reset: true)
+
+    {:noreply, socket}
   end
 
   def render(assigns) do
@@ -77,7 +84,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
           "Price: Low to High": "ticket_price_asc"
         ]}
       />
-      <.link navigate={~p"/raffles"}> Reset </.link>
+      <.link patch={~p"/raffles"}> Reset </.link>
     </.form>
     """
   end
@@ -116,7 +123,9 @@ defmodule RaffleyWeb.RaffleLive.Index do
     # add url params from filter_form
     # the conversion of #{params} map to url params is taken care of by ~p
     # push_navigate() will mount a new liveview. it does the same thing as calling <.link> in the browser.
-    socket = push_navigate(socket, to: ~p"/raffles?#{params}")
+    # socket = push_navigate(socket, to: ~p"/raffles?#{params}")
+    # push_patch() will use the current liveview. 
+    socket = push_patch(socket, to: ~p"/raffles?#{params}")
 
     {:noreply, socket}
   end
