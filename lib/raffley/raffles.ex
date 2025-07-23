@@ -44,7 +44,7 @@ defmodule Raffley.Raffles do
   end
 
   defp with_status(query, status) do
-    if String.to_atom(status) in status_values() do
+    if is_binary(status) and String.to_atom(status) in status_values() do
       where(query, status: ^status)
     else
       query
