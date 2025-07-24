@@ -2,6 +2,7 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
   use RaffleyWeb, :live_view
 
   alias Raffley.Admin
+  alias Raffley.Raffles
 
   def mount(_params, _session, socket) do
     socket =
@@ -37,8 +38,21 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
         <:action :let={{_dom_id, raffle}}>
           <.link navigate={~p"/admin/raffles/#{raffle}/edit"}>Edit</.link>
         </:action>
+        <:action :let={{_dom_id, raffle}}>
+          <%!-- data-confim pops browser's native confirmation dialog --%>
+          <.link phx-click="delete" phx-value-id={raffle.id} data-confirm="Are you sure?">
+            Delete
+          </.link>
+        </:action>
       </.table>
     </div>
     """
+  end
+
+  def handle_event("delete", %{"id" => id}, socket) do
+    raffle = Raffles.get_raffle!(id)
+    {:ok, _} = Admin.delete_raffle(raffle)
+
+    {:noreply, stream_delete(socket, :raffles, raffle)}
   end
 end
