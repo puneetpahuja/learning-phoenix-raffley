@@ -8,6 +8,7 @@ defmodule Raffley.Raffles do
   alias Raffley.Raffles.Raffle
   alias Raffley.Repo
   import Ecto.Query
+  alias Raffley.Charities.Charity
 
   def list_raffles do
     Repo.all(Raffle)
@@ -20,9 +21,38 @@ defmodule Raffley.Raffles do
     Raffle
     |> with_status(filter["status"])
     |> search_by(filter["q"])
+    |> with_charity(filter["charity"])
     |> sort(filter["sort_by"])
     |> preload(:charity)
     |> Repo.all()
+  end
+
+  defp with_charity(query, slug) do
+    cond do
+      slug in ["", nil] ->
+        query
+
+      # join() is inner join, for left join use left_join()
+      true ->
+        # alternate ways for the same query
+        #
+        # query
+        # |> join(:inner, [r], c in Charity, on: r.charity_id == c.id)
+        # |> where([r, c], c.slug == ^slug)
+        #
+        # from r in query,
+        #   join: c in Charity,
+        #   on: r.charity_id == c.id,
+        #   where: c.slug == ^slug
+        #
+        # query
+        # |> join(:inner, [r], c in assoc(r, :charity))
+        # |> where([r, c], c.slug == ^slug)
+        from r in query,
+          # assoc() works only if you have ecto associations set up in the raffle schema
+          join: c in assoc(r, :charity),
+          where: c.slug == ^slug
+    end
   end
 
   defp sort(query, "prize") do
@@ -35,6 +65,19 @@ defmodule Raffley.Raffles do
 
   defp sort(query, "ticket_price_asc") do
     order_by(query, :ticket_price)
+  end
+
+  defp sort(query, "charity") do
+    # macro syntax
+    #
+    # query
+    # |> join(:inner, [r], c in assoc(r, :charity))
+    # |> order_by([r, c], asc: c.name)
+    from r in query,
+      join: c in assoc(r, :charity),
+      # for decreasing order
+      # order_by: {:desc, c.name}
+      order_by: c.name
   end
 
   defp sort(query, _) do

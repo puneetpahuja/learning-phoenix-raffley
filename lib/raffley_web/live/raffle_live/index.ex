@@ -2,6 +2,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
   use RaffleyWeb, :live_view
 
   alias Raffley.Raffles
+  alias Raffley.Charities
 
   def mount(_params, _session, socket) do
     # to_form() expects the map to have string keys
@@ -14,6 +15,9 @@ defmodule RaffleyWeb.RaffleLive.Index do
     #     IO.inspect(socket.assigns.streams.raffles, label: "AFTER RENDER")
     #     socket
     #   end)
+
+    # done in mount() and not handle_params() because this won't change based on the url params
+    socket = assign(socket, :charity_options, Charities.charity_names_and_slugs())
 
     {:ok, socket}
   end
@@ -44,7 +48,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
         </:details>
       </.banner>
 
-      <.filter_form form={@form} />
+      <.filter_form form={@form} charity_options={@charity_options}/>
 
       <%!-- whenever you use a stream, the parent container also needs 
         1. a unique id (dom requirement).
@@ -61,6 +65,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
   end
 
   attr :form, :map, required: true
+  attr :charity_options, :list, required: true
 
   def filter_form(assigns) do
     ~H"""
@@ -74,6 +79,8 @@ defmodule RaffleyWeb.RaffleLive.Index do
       <%!-- options can be strings also --%>
       <.input type="select" field={@form[:status]} prompt="Status" options={Raffles.status_values()} />
 
+      <.input type="select" field={@form[:charity]} prompt="Charity" options={@charity_options} />
+
       <.input
         type="select"
         field={@form[:sort_by]}
@@ -81,7 +88,8 @@ defmodule RaffleyWeb.RaffleLive.Index do
         options={[
           Prize: "prize",
           "Price: High to Low": "ticket_price_desc",
-          "Price: Low to High": "ticket_price_asc"
+          "Price: Low to High": "ticket_price_asc",
+          Charity: "charity"
         ]}
       />
       <.link patch={~p"/raffles"}> Reset </.link>
@@ -120,7 +128,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
   def handle_event("filter", params, socket) do
     params =
       params
-      |> Map.take(~w(q status sort_by))
+      |> Map.take(~w(q status sort_by charity))
       |> Map.reject(fn {_, v} -> v == "" end)
 
     # add url params from filter_form

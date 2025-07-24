@@ -59,6 +59,17 @@ defmodule Raffley.Charities do
     Repo.all(query)
   end
 
+  def charity_names_and_slugs() do
+    query =
+      from c in Charity,
+        order_by: :name,
+        # this will only fetch two columns, hence making the query performant
+        # never fetch data - rows or cols from DB that you don't need
+        select: {c.name, c.slug}
+
+    Repo.all(query)
+  end
+
   @doc """
   Creates a charity.
 
