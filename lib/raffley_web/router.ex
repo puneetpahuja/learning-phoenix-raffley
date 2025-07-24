@@ -33,6 +33,11 @@ defmodule RaffleyWeb.Router do
     # :new and :edit are live actions and it gets assigned automatically to the liveview's state's :live_action field depending on the route
     live "/admin/raffles/new", AdminRaffleLive.Form, :new
     live "/admin/raffles/:id/edit", AdminRaffleLive.Form, :edit
+
+    live "/charities", CharityLive.Index, :index
+    live "/charities/new", CharityLive.Form, :new
+    live "/charities/:id", CharityLive.Show, :show
+    live "/charities/:id/edit", CharityLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
