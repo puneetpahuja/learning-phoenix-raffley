@@ -11,6 +11,9 @@ defmodule Raffley.Raffles do
 
   def list_raffles do
     Repo.all(Raffle)
+
+    # list all raffles with their associated charities
+    # Repo.all(Raffle) |> Repo.preload(:charity)
   end
 
   def filter_raffles(filter) do
@@ -55,6 +58,9 @@ defmodule Raffley.Raffles do
   # don't need the guards as the Repo.get!() can take ids as string
   def get_raffle!(id) do
     Repo.get!(Raffle, id)
+
+    # get a raffle with it's associated charity
+    # Repo.get!(Raffle, id) |> Repo.preload(:charity)
   end
 
   def featured_raffles(raffle) do

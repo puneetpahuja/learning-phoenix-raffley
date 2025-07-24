@@ -16,6 +16,15 @@ defmodule Raffley.Raffles.Raffle do
     # field :image_path, :string # auto-generated
     field :image_path, :string, default: "/images/placeholder.jpg"
 
+    # establish the relationship with charities in the ecto realm
+    # belongs_to() is always declared in the schema that has the foreign key
+    # :charity is the association name
+    belongs_to :charity, Raffley.Charities.Charity
+    # fields defined under-the-hood by ecto because of belongs_to
+    # the name of the fields are inferred from the association name given to belongs_to
+    # field :charity_id  # it holds the foreign key
+    # field :charity # it holds the charity struct the raffle belongs to
+
     # creates two datetime fields: inserted_at and updated_at
     timestamps(type: :utc_datetime)
   end

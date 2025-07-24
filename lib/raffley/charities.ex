@@ -19,6 +19,9 @@ defmodule Raffley.Charities do
   """
   def list_charities do
     Repo.all(Charity)
+
+    # list all charities with their associated raffles
+    # Repo.all(Charity) |> Repo.preload(:raffles)
   end
 
   @doc """
@@ -36,6 +39,8 @@ defmodule Raffley.Charities do
 
   """
   def get_charity!(id), do: Repo.get!(Charity, id)
+  # get a charity with it's associated raffles
+  # Repo.get!(Charity, id) |> Repo.preload(:raffles)
 
   @doc """
   Creates a charity.
