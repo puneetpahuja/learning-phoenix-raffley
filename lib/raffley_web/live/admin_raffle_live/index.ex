@@ -33,6 +33,10 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
         <:col :let={{_dom_id, raffle}} label="Ticket Price">
           {raffle.ticket_price}
         </:col>
+        <%!-- to show user actions in the last column of the table --%>
+        <:action :let={{_dom_id, raffle}}>
+          <.link navigate={~p"/admin/raffles/#{raffle}/edit"}>Edit</.link>
+        </:action>
       </.table>
     </div>
     """

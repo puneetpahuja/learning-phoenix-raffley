@@ -4,17 +4,35 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
   alias Raffley.Raffles.Raffle
   alias Raffley.Admin
 
-  def mount(_params, _session, socket) do
-    changeset = Admin.change_raffle(%Raffle{})
+  def mount(params, _session, socket) do
+    {:ok, apply_action(socket, socket.assigns.live_action, params)}
+  end
 
-    socket =
-      socket
-      # to_form() can't take a schema struct but can take a changeset
-      # the `as:` is not required because it will use the lowercase schema name
-      # sending the changeset will prefill the form with the schema default values
-      |> assign(page_title: "New Raffle", form: to_form(changeset))
+  defp apply_action(socket, :new, _params) do
+    raffle = %Raffle{}
+    changeset = Admin.change_raffle(raffle)
 
-    {:ok, socket}
+    socket
+    # to_form() can't take a schema struct but can take a changeset
+    # the `as:` is not required because it will use the lowercase schema name
+    # sending the changeset will prefill the form with the schema default values
+    |> assign(
+      page_title: "New Raffle",
+      form: to_form(changeset),
+      raffle: raffle
+    )
+  end
+
+  defp apply_action(socket, :edit, %{"id" => id}) do
+    raffle = Raffles.get_raffle!(id)
+    changeset = Admin.change_raffle(raffle)
+
+    socket
+    |> assign(
+      page_title: "Edit Raffle",
+      form: to_form(changeset),
+      raffle: raffle
+    )
   end
 
   def render(assigns) do
@@ -80,7 +98,7 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
   end
 
   def handle_event("validate", %{"raffle" => raffle_params}, socket) do
-    changeset = Admin.change_raffle(%Raffle{}, raffle_params)
+    changeset = Admin.change_raffle(socket.assigns.raffle, raffle_params)
     # it will re-render the form and show the errors in the changeset
     # action is sent to make the form's action non-nil, so that it displays the errors
     socket = assign(socket, :form, to_form(changeset, action: :validate))
