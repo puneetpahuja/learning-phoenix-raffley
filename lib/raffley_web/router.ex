@@ -41,8 +41,11 @@ defmodule RaffleyWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", RaffleyWeb do
+  scope "/api", RaffleyWeb.Api do
     pipe_through :api
+
+    get "/raffles", RaffleController, :index
+    get "/raffles/:id", RaffleController, :show
   end
 
   def spy(conn, _opts) do
