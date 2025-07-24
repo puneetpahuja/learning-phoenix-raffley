@@ -8,7 +8,6 @@ defmodule Raffley.Raffles do
   alias Raffley.Raffles.Raffle
   alias Raffley.Repo
   import Ecto.Query
-  alias Raffley.Charities.Charity
 
   def list_raffles do
     Repo.all(Raffle)

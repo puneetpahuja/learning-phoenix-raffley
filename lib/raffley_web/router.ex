@@ -46,6 +46,7 @@ defmodule RaffleyWeb.Router do
 
     get "/raffles", RaffleController, :index
     get "/raffles/:id", RaffleController, :show
+    post "/raffles", RaffleController, :create
   end
 
   def spy(conn, _opts) do

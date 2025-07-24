@@ -17,4 +17,17 @@ defmodule RaffleyWeb.Api.RaffleJSON do
       charity_id: raffle.charity_id
     }
   end
+
+  def error(%{changeset: changeset}) do
+    errors = Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
+    %{errors: errors}
+  end
+
+  defp translate_error({msg, opts}) do
+    # msg example: "should be at least %{count} character(s)"
+    # opts example: [count: 10, validation: :length, kind: :min, type: :string]
+    Enum.reduce(opts, msg, fn {key, value}, acc ->
+      String.replace(acc, "%{#{key}}", fn _ -> to_string(value) end)
+    end)
+  end
 end
