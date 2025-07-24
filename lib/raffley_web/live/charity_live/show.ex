@@ -23,6 +23,18 @@ defmodule RaffleyWeb.CharityLive.Show do
       <:item title="Slug">{@charity.slug}</:item>
     </.list>
 
+    <section class="mt-12">
+      <h4>Raffles</h4>
+      <ul class="raffles">
+        <li :for={raffle <- @charity.raffles}>
+          <.link navigate={~p"/raffles/#{raffle.id}"}>
+            <img src={raffle.image_path} />
+            {raffle.prize}
+          </.link>
+        </li>
+      </ul>
+    </section>
+
     <.back navigate={~p"/charities"}>Back to charities</.back>
     """
   end
@@ -32,6 +44,6 @@ defmodule RaffleyWeb.CharityLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Charity")
-     |> assign(:charity, Charities.get_charity!(id))}
+     |> assign(:charity, Charities.get_charity!(id, true))}
   end
 end

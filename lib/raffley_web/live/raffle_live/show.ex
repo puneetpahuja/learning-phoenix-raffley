@@ -34,7 +34,10 @@ defmodule RaffleyWeb.RaffleLive.Show do
         <section>
           <.badge status={@raffle.status} />
           <header>
-            <h2>{@raffle.prize}</h2>
+            <div>
+              <h2>{@raffle.prize}</h2>
+              <h3>{@raffle.charity.name}</h3>
+            </div>
             <div class="price">${@raffle.ticket_price} / ticket</div>
           </header>
           <div class="description">

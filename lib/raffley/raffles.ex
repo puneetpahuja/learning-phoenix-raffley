@@ -21,6 +21,7 @@ defmodule Raffley.Raffles do
     |> with_status(filter["status"])
     |> search_by(filter["q"])
     |> sort(filter["sort_by"])
+    |> preload(:charity)
     |> Repo.all()
   end
 
@@ -58,6 +59,7 @@ defmodule Raffley.Raffles do
   # don't need the guards as the Repo.get!() can take ids as string
   def get_raffle!(id) do
     Repo.get!(Raffle, id)
+    |> Repo.preload(:charity)
 
     # get a raffle with it's associated charity
     # Repo.get!(Raffle, id) |> Repo.preload(:charity)

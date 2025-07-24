@@ -38,9 +38,26 @@ defmodule Raffley.Charities do
       ** (Ecto.NoResultsError)
 
   """
-  def get_charity!(id), do: Repo.get!(Charity, id)
-  # get a charity with it's associated raffles
-  # Repo.get!(Charity, id) |> Repo.preload(:raffles)
+  def get_charity!(id, preload \\ false) do
+    charity = Repo.get!(Charity, id)
+
+    if preload do
+      charity |> Repo.preload(:raffles)
+    else
+      charity
+    end
+  end
+
+  def charity_names_and_ids() do
+    query =
+      from c in Charity,
+        order_by: :name,
+        # this will only fetch two columns, hence making the query performant
+        # never fetch data - rows or cols from DB that you don't need
+        select: {c.name, c.id}
+
+    Repo.all(query)
+  end
 
   @doc """
   Creates a charity.
