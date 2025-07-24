@@ -9,6 +9,8 @@ defmodule RaffleyWeb.CharityLive.Index do
     <.header>
       Listing Charities
       <:actions>
+        <%!-- dispatch() forwards the button click to the link --%>
+        <%!-- you can set use `<.button phx-click{JS.navigate(~p"/charities/new")}>` and get rid of the <.link> but having a link wrapped in a button gives you the capabilities of right clicking it, copying it, opening it in a new tab etc --%>
         <.button phx-click={JS.dispatch("click", to: {:inner, "a"})}>
           <.link navigate={~p"/charities/new"}>
             New Charity

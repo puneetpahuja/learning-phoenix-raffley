@@ -28,6 +28,7 @@ defmodule RaffleyWeb.CharityLive.Form do
   def mount(params, _session, socket) do
     {:ok,
      socket
+     # return_to is used to return to the page we came from: show or index
      |> assign(:return_to, return_to(params["return_to"]))
      |> apply_action(socket.assigns.live_action, params)}
   end
