@@ -2,13 +2,16 @@ defmodule RaffleyWeb.RaffleLive.Show do
   use RaffleyWeb, :live_view
 
   alias Raffley.Raffles
+  alias Raffley.Tickets
+  alias Raffley.Tickets.Ticket
 
   # to assign the user in the socket also and not just conn
   # can be done in the live session also
   on_mount {RaffleyWeb.UserAuth, :mount_current_user}
 
   def mount(_params, _session, socket) do
-    socket = assign(socket, :form, to_form(%{}))
+    changeset = Tickets.change_ticket(%Ticket{})
+    socket = assign(socket, :form, to_form(changeset))
 
     {:ok, socket}
   end
@@ -55,7 +58,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
         <div class="left">
           <div :if={@raffle.status == :open}>
             <%= if @current_user do %>
-              <.form for={@form} id="ticket-form">
+              <.form for={@form} id="ticket-form" phx-change="validate" phx-submit="save">
                 <.input field={@form[:comment]} placeholder="Comment..." autofocus />
                   <.button>Get A Ticket</.button>
               </.form>
@@ -105,5 +108,29 @@ defmodule RaffleyWeb.RaffleLive.Show do
       </.async_result>
     </section>
     """
+  end
+
+  def handle_event("validate", %{"ticket" => ticket_params}, socket) do
+    changeset = Tickets.change_ticket(%Ticket{}, ticket_params)
+    socket = assign(socket, :form, to_form(changeset, action: :validate))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("save", %{"ticket" => ticket_params}, socket) do
+    %{raffle: raffle, current_user: user} = socket.assigns
+
+    case Tickets.create_ticket(raffle, user, ticket_params) do
+      {:ok, _ticket} ->
+        # clear the form
+        # code same as mount()
+        changeset = Tickets.change_ticket(%Ticket{})
+        socket = assign(socket, :form, to_form(changeset))
+        {:noreply, socket}
+
+      {:error, changeset} ->
+        socket = assign(socket, :form, to_form(changeset))
+        {:noreply, socket}
+    end
   end
 end
