@@ -38,14 +38,17 @@ defmodule RaffleyWeb.Router do
   scope "/", RaffleyWeb do
     # any auth checks that you perform here for the http requests must also be performed before the liveview mounts for all the liveviews in this scope
     # to account for live navigation, which happens entirely over the websocket
-    pipe_through [:browser, :require_authenticated_user]
+    pipe_through [:browser, :require_authenticated_user, :require_admin]
 
     # run auth checks
     # this is called before both disconnected and connected mounts
     # this on_mount() callback function will be invoked whenever any LiveView in this live_session mounts
     # even when live navigating to them over the websocket i.e. the connected mount
     live_session :admin,
-      on_mount: {RaffleyWeb.UserAuth, :ensure_authenticated} do
+      on_mount: [
+        {RaffleyWeb.UserAuth, :ensure_authenticated},
+        {RaffleyWeb.UserAuth, :ensure_admin}
+      ] do
       live "/admin/raffles", AdminRaffleLive.Index
 
       # :new and :edit are live actions and it gets assigned automatically to the liveview's state's :live_action field depending on the route

@@ -164,6 +164,22 @@ defmodule RaffleyWeb.UserAuth do
     end
   end
 
+  def on_mount(:ensure_admin, _params, _session, socket) do
+    # not required as the previous callback did this
+    # socket = mount_current_user(socket, session)
+
+    if socket.assigns.current_user.username == "admin" do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> Phoenix.LiveView.put_flash(:error, "Only admins allowed!")
+        |> Phoenix.LiveView.redirect(to: ~p"/")
+
+      {:halt, socket}
+    end
+  end
+
   def on_mount(:redirect_if_user_is_authenticated, _params, session, socket) do
     socket = mount_current_user(socket, session)
 
@@ -210,6 +226,20 @@ defmodule RaffleyWeb.UserAuth do
       # store the current url to come back to after login
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
+      # halt the plug pipeline
+      |> halt()
+    end
+  end
+
+  def require_admin(conn, _opts) do
+    # as the require_authenticated_user() plug will run before this, we cas assume that we will have a valid current_user and hence can use the dot syntax to access the properties
+    # otherwise it will raise error and it should
+    if conn.assigns.current_user.username == "admin" do
+      conn
+    else
+      conn
+      |> put_flash(:error, "Only admins allowed!")
+      |> redirect(to: ~p"/")
       # halt the plug pipeline
       |> halt()
     end
