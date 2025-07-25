@@ -24,6 +24,9 @@ defmodule Raffley.Raffles.Raffle do
     # the name of the fields are inferred from the association name given to belongs_to
     # field :charity_id  # it holds the foreign key
     # field :charity # it holds the charity struct the raffle belongs to
+    #
+    # added manually
+    has_many :tickets, Raffley.Tickets.Ticket
 
     # creates two datetime fields: inserted_at and updated_at
     timestamps(type: :utc_datetime)
