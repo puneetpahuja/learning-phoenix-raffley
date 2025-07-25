@@ -4,6 +4,10 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
   alias Raffley.Admin
   alias Raffley.Raffles
 
+  # run auth checks
+  # this is called before both disconnected and connected mounts
+  on_mount {RaffleyWeb.UserAuth, :ensure_authenticated}
+
   def mount(_params, _session, socket) do
     socket =
       socket
@@ -32,7 +36,7 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
       }>
         Toggle Joke
       </.button>
-      <div id="joke" class="joke hidden">What's a tree's favorite drink</div>
+      <div id="joke" class="joke hidden">What's a tree's favorite drink, {@current_user.username}?</div>
 
       <.header>
         {@page_title}

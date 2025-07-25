@@ -33,6 +33,8 @@ defmodule RaffleyWeb.Router do
   end
 
   scope "/", RaffleyWeb do
+    # any auth checks that you perform here for the http requests must also be performed before the liveview mounts for all the liveviews in this scope
+    # to account for live navigation, which happens entirely over the websocket
     pipe_through [:browser, :require_authenticated_user]
 
     live "/admin/raffles", AdminRaffleLive.Index

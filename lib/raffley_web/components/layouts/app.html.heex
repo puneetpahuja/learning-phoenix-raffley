@@ -8,6 +8,8 @@
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <.link navigate={~p"/raffles"}>Raffles</.link>
       <.link navigate={~p"/estimator"}>Estimator</.link>
+      <%!-- does not send a http request, just push a redirect message on the websocket. so no plugs are run and it can be accessed even after logout. 
+      <%!-- so these can be accessed even after logout, which should not happen. to fix this we add the plugs to admin liveviews. --%>
       <.link navigate={~p"/admin/raffles"}>Admin</.link>
       <.link navigate={~p"/charities"}>Charities</.link>
     </div>
