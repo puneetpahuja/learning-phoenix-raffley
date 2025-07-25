@@ -32,6 +32,7 @@ defmodule Raffley.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.20"},
       # to use the new live generator that generates simplified code
       # don't use it to run the app, only use officially released phoenix versions for that
