@@ -4,6 +4,7 @@ defmodule Raffley.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
@@ -37,9 +38,23 @@ defmodule Raffley.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :username])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_username()
+  end
+
+  defp validate_username(changeset) do
+    changeset
+    |> validate_required([:username])
+    |> validate_length(:username, min: 2, max: 25)
+    # unsafe because of race conditions. should not be used alone. should always be used in conjunction of
+    # unique_constraint()
+    |> unsafe_validate_unique(:username, Raffley.Repo)
+    # convert the db exception to a changeset error  
+    # this is done once we try to create a user by clicking `Create an account`
+    # need to do it before that. we use the unsafe_validate_unique() above for that
+    |> unique_constraint(:username)
   end
 
   defp validate_email(changeset, opts) do
