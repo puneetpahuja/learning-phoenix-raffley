@@ -207,8 +207,10 @@ defmodule RaffleyWeb.UserAuth do
     else
       conn
       |> put_flash(:error, "You must log in to access this page.")
+      # store the current url to come back to after login
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
+      # halt the plug pipeline
       |> halt()
     end
   end
