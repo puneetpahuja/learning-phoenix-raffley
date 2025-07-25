@@ -18,6 +18,9 @@ defmodule RaffleyWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # these are in default unnamed live session
+  # live navigating between liveviews in the same live session will reuse the existing web socket and perform the auth checks in on_mount callback
+  # but between different live sessions will force a full page reload and not reuse the websocket connection
   scope "/", RaffleyWeb do
     pipe_through :browser
 
@@ -37,16 +40,23 @@ defmodule RaffleyWeb.Router do
     # to account for live navigation, which happens entirely over the websocket
     pipe_through [:browser, :require_authenticated_user]
 
-    live "/admin/raffles", AdminRaffleLive.Index
+    # run auth checks
+    # this is called before both disconnected and connected mounts
+    # this on_mount() callback function will be invoked whenever any LiveView in this live_session mounts
+    # even when live navigating to them over the websocket i.e. the connected mount
+    live_session :admin,
+      on_mount: {RaffleyWeb.UserAuth, :ensure_authenticated} do
+      live "/admin/raffles", AdminRaffleLive.Index
 
-    # :new and :edit are live actions and it gets assigned automatically to the liveview's state's :live_action field depending on the route
-    live "/admin/raffles/new", AdminRaffleLive.Form, :new
-    live "/admin/raffles/:id/edit", AdminRaffleLive.Form, :edit
+      # :new and :edit are live actions and it gets assigned automatically to the liveview's state's :live_action field depending on the route
+      live "/admin/raffles/new", AdminRaffleLive.Form, :new
+      live "/admin/raffles/:id/edit", AdminRaffleLive.Form, :edit
 
-    live "/charities", CharityLive.Index, :index
-    live "/charities/new", CharityLive.Form, :new
-    live "/charities/:id", CharityLive.Show, :show
-    live "/charities/:id/edit", CharityLive.Form, :edit
+      live "/charities", CharityLive.Index, :index
+      live "/charities/new", CharityLive.Form, :new
+      live "/charities/:id", CharityLive.Show, :show
+      live "/charities/:id/edit", CharityLive.Form, :edit
+    end
   end
 
   # Other scopes may use custom stacks.
