@@ -8,6 +8,16 @@ defmodule Raffley.Raffles do
   alias Raffley.Raffles.Raffle
   alias Raffley.Repo
   import Ecto.Query
+  alias Phoenix.PubSub
+
+  def subscribe(raffle_id) do
+    # first argument is the name of the pubsub service. the name is in application.ex
+    PubSub.subscribe(Raffley.PubSub, "raffle:#{raffle_id}")
+  end
+
+  def broadcast(raffle_id, message) do
+    PubSub.broadcast(Raffley.PubSub, "raffle:#{raffle_id}", message)
+  end
 
   def list_raffles do
     Repo.all(Raffle)

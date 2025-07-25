@@ -8,6 +8,7 @@ defmodule Raffley.Tickets do
 
   alias Raffley.Tickets.Ticket
   alias Raffley.Raffles.Raffle
+  alias Raffley.Raffles
   alias Raffley.Accounts.User
 
   @doc """
@@ -55,6 +56,14 @@ defmodule Raffley.Tickets do
     %Ticket{raffle: raffle, user: user, price: raffle.ticket_price}
     |> Ticket.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, ticket} ->
+        Raffles.broadcast(raffle.id, {:ticket_created, ticket})
+        {:ok, ticket}
+
+      {:error, _changeset} = error ->
+        error
+    end
   end
 
   @doc """
