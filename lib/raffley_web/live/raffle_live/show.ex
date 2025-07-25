@@ -189,4 +189,8 @@ defmodule RaffleyWeb.RaffleLive.Show do
 
     {:noreply, socket}
   end
+
+  def handle_info({:raffle_updated, raffle}, socket) do
+    {:noreply, assign(socket, :raffle, raffle)}
+  end
 end

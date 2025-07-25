@@ -1,5 +1,6 @@
 defmodule Raffley.Admin do
   alias Raffley.Raffles.Raffle
+  alias Raffley.Raffles
   alias Raffley.Repo
   import Ecto.Query
 
@@ -24,6 +25,17 @@ defmodule Raffley.Admin do
     raffle
     |> Raffle.changeset(attrs)
     |> Repo.update()
+    |> case do
+      {:ok, raffle} ->
+        # do it here and not in the subscriber Show module so that only one DB query is fired
+        # and not one per subscriber
+        raffle = Repo.preload(raffle, :charity)
+        Raffles.broadcast(raffle.id, {:raffle_updated, raffle})
+        {:ok, raffle}
+
+      {:error, _} = error ->
+        error
+    end
   end
 
   def delete_raffle(%Raffle{} = raffle) do
