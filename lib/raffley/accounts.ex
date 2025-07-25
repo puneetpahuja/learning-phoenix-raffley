@@ -80,6 +80,12 @@ defmodule Raffley.Accounts do
     |> Repo.insert()
   end
 
+  def promote_to_admin(%User{} = user) do
+    user
+    |> Ecto.Changeset.change(%{is_admin: true})
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

@@ -168,7 +168,7 @@ defmodule RaffleyWeb.UserAuth do
     # not required as the previous callback did this
     # socket = mount_current_user(socket, session)
 
-    if socket.assigns.current_user.username == "admin" do
+    if socket.assigns.current_user.is_admin do
       {:cont, socket}
     else
       socket =
@@ -234,7 +234,7 @@ defmodule RaffleyWeb.UserAuth do
   def require_admin(conn, _opts) do
     # as the require_authenticated_user() plug will run before this, we cas assume that we will have a valid current_user and hence can use the dot syntax to access the properties
     # otherwise it will raise error and it should
-    if conn.assigns.current_user.username == "admin" do
+    if conn.assigns.current_user.is_admin do
       conn
     else
       conn

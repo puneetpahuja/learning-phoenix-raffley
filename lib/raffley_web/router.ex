@@ -18,6 +18,11 @@ defmodule RaffleyWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :admin do
+    plug :require_authenticated_user
+    plug :require_admin
+  end
+
   # these are in default unnamed live session
   # live navigating between liveviews in the same live session will reuse the existing web socket and perform the auth checks in on_mount callback
   # but between different live sessions will force a full page reload and not reuse the websocket connection
@@ -38,7 +43,7 @@ defmodule RaffleyWeb.Router do
   scope "/", RaffleyWeb do
     # any auth checks that you perform here for the http requests must also be performed before the liveview mounts for all the liveviews in this scope
     # to account for live navigation, which happens entirely over the websocket
-    pipe_through [:browser, :require_authenticated_user, :require_admin]
+    pipe_through [:browser, :admin]
 
     # run auth checks
     # this is called before both disconnected and connected mounts
