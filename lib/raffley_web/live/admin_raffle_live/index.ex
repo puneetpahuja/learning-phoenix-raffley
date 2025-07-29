@@ -57,6 +57,9 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
         <:col :let={{_dom_id, raffle}} label="Ticket Price">
           {raffle.ticket_price}
         </:col>
+        <:col :let={{_dom_id, raffle}} label="Winning Ticket #">
+          {raffle.winning_ticket_id}
+        </:col>
         <%!-- to show user actions in the last column of the table --%>
         <:action :let={{_dom_id, raffle}}>
           <.link navigate={~p"/admin/raffles/#{raffle}/edit"}>Edit</.link>
@@ -69,6 +72,11 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
             Delete
           </.link>
         </:action>
+        <:action :let={{_dom_id, raffle}}>
+          <.link phx-click="draw-winner" phx-value-id={raffle.id}>
+            Draw Winner
+          </.link>
+        </:action>
       </.table>
     </div>
     """
@@ -79,6 +87,24 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
     {:ok, _} = Admin.delete_raffle(raffle)
 
     {:noreply, stream_delete(socket, :raffles, raffle)}
+  end
+
+  def handle_event("draw-winner", %{"id" => id}, socket) do
+    raffle = Raffles.get_raffle!(id)
+
+    case Admin.draw_winner(raffle) do
+      {:ok, raffle} ->
+        socket =
+          socket
+          |> put_flash(:info, "Winning ticket drawn!")
+          # because the raffle already exists in the stream, it will be updated in place and not inserted again
+          |> stream_insert(:raffles, raffle)
+
+        {:noreply, socket}
+
+      {:error, error} ->
+        {:noreply, put_flash(socket, :error, error)}
+    end
   end
 
   def delete_and_hide(dom_id, raffle) do

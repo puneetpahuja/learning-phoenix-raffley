@@ -111,7 +111,7 @@ defmodule Raffley.Raffles do
   # don't need the guards as the Repo.get!() can take ids as string
   def get_raffle!(id) do
     Repo.get!(Raffle, id)
-    |> Repo.preload(:charity)
+    |> Repo.preload([:charity, :winning_ticket])
 
     # get a raffle with it's associated charity
     # Repo.get!(Raffle, id) |> Repo.preload(:charity)

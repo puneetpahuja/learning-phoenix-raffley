@@ -47,6 +47,13 @@ defmodule RaffleyWeb.RaffleLive.Show do
   def render(assigns) do
     ~H"""
     <div class="raffle-show">
+      <.banner :if={@raffle.winning_ticket}>
+        <.icon name="hero-sparkles-solid" /> 
+        Ticket #{@raffle.winning_ticket.id} Wins!
+        <:details>
+           {@raffle.winning_ticket.comment}
+        </:details>
+      </.banner>
       <div class="raffle">
         <img src={@raffle.image_path} />
         <section>

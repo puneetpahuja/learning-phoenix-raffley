@@ -29,13 +29,31 @@ defmodule Raffley.Admin do
       {:ok, raffle} ->
         # do it here and not in the subscriber Show module so that only one DB query is fired
         # and not one per subscriber
-        raffle = Repo.preload(raffle, :charity)
+        raffle = Repo.preload(raffle, [:charity, :winning_ticket])
         Raffles.broadcast(raffle.id, {:raffle_updated, raffle})
         {:ok, raffle}
 
       {:error, _} = error ->
         error
     end
+  end
+
+  def draw_winner(%Raffle{status: :closed} = raffle) do
+    raffle = Repo.preload(raffle, :tickets)
+
+    case raffle.tickets do
+      [] ->
+        {:error, "No tickets to draw!"}
+
+      tickets ->
+        winner = Enum.random(tickets)
+        # this line will return {:ok, _raffle}
+        {:ok, _raffle} = update_raffle(raffle, %{winning_ticket_id: winner.id})
+    end
+  end
+
+  def draw_winner(%Raffle{} = raffle) do
+    {:error, "Raffle must be closed to draw a winner!"}
   end
 
   def delete_raffle(%Raffle{} = raffle) do
